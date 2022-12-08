@@ -7,7 +7,7 @@ import "antd/dist/antd.css";
 import Link from 'next/link';
 
 
-export default function Movies3(){
+export default function Movies33(){
     const [url, setUrl] = useState('')
     const {data, error} = useSWR(url, theFetcher)
     const onClickHandler = (e) => {
