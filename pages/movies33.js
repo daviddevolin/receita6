@@ -1,65 +1,62 @@
-import useSWR from 'swr';
-import { useState } from 'react';
-import { Button  } from 'antd';
+import { Input, Button , Form} from "antd";
 import { SearchOutlined } from '@ant-design/icons';
-import Head from 'next/head';
 import "antd/dist/antd.css";
-import Link from 'next/link';
-
-
-export default function Movies33(){
-    const [url, setUrl] = useState('')
-    const {data, error} = useSWR(url, theFetcher)
-    const onClickHandler = (e) => {
-        e.preventDefault()
-        if (url === '') setUrl('http://www.omdbapi.com/?apikey=3b864bc8&s=bagdad')
-        else setUrl('')
+export default function Movies33(){   
+    const onFinish =()=>{
+        const value = document.getElementById('inputFilme').value;
+        window.location.href= `/searchmovies/${value}`
     }
-    return (
-        <div>
-            <TheLink url={url} handler={onClickHandler}/>
-            <TheMovies data={ error?{error:'Erro na pesquisa'}: data ? data: {Search:''} } show={url !== ''}/>
-            
-        </div>
-    )
-}
-export function TheMovies({data,show}){
-    if (!show) return (<div></div>)    
-    if (data.error) return (<div>falha na requisição</div>)
-    if (data.Search === '' ) return (<div>carregando...</div>)
-    return (
-        <div>
-            { data.Search.map( (m, i) => 
-               <li key={i}>
-                   <Link href={`/onemovie/${m.imdbID}`}><a>{m.Title}</a></Link>
-               </li>
-            )}        
-        </div>
-    )
-}
 
-export function TheLink({url, handler}){    
-    return (
+    const [form] = Form.useForm();
+
+    const formItemLayout = {
+        labelCol: {
+          span: 4,
+        },
+        wrapperCol: {
+          span: 8,
+        },
+    };
+
+    const formTailLayout = {
+        labelCol: {
+          span: 4,
+        },
+        wrapperCol: {
+          span: 8,
+          offset: 4,
+        },
+    };
+    return(
         <div>
-             <Head>
-                <meta
-                http-equiv="Content-Security-Policy"
-                content="upgrade-insecure-requests"
-                />
-            </Head>
-            <Link href="/movies3.js">
-                <Button type='primary' onClick={handler}> {url === '' ? 'Mostrar' : 'Ocultar'}</Button>
-            </Link>
-            <Button type="dashed" icon={<SearchOutlined />}  href="/search">
-                pesquisar filme
-            </Button>
+            <Form form={form} name="dynamic_rule" onFinish={onFinish}>
+                <Form.Item
+                    {...formItemLayout}
+                    name="tiltlefilm"
+                    label="Title"
+                    rules={[
+                    {
+                        required: true,
+                        message: 'insira o título do filme',
+                    },
+                    ]}
+                >
+                    <Input 
+                        placeholder="digite o título do filme"  
+                        id="inputFilme" 
+                    />
+                </Form.Item>
+
+                <Form.Item {...formTailLayout}>
+                <Button 
+                    type='primary'  
+                    icon={<SearchOutlined />}
+                    htmlType="submit" 
+                    id='buttonInput'> pesquisar
+                </Button>
+                </Form.Item>
+            </Form>
         </div>
     )
-}
-
-async function theFetcher(url) {
-    if (url === null || url === '') return {Search:''}
-    const res = await fetch(url);
-    const json = await res.json();
-    return json;
+    
 }
