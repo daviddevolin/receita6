@@ -93,29 +93,31 @@ export default function Movies33(){
 export  function MovieSearch({title,year}){
 
     const t=title;
-    const y= year
-    const {data, error} = useSWR(`https://www.omdbapi.com/?apikey=5d61b462&s=${t}&y=${y}`, fetcher)
-    const { Meta } = Card;
-
-    if (error) return <div>falha na requisição...</div>
-    if (!data) return <div>carregando...</div>
-    if (data.Response=="False")return<div>filme não encontrado...</div>
-    console.log(data)
-    return (
-        <Space direction="horizontal" style={{width: '100%', justifyContent: 'center', flexWrap:'wrap'}}>
-            {data.Search.map((m) => (
-                <Card
-                    hoverable
-                    style={{
-                        width: 240,
-                    }}
-                    cover={<img src={m.Poster}/>}
-                >
-                    <Meta  title={m.Title} description={m.Year} />
-                </Card>
-            ))} 
-        </Space>     
-    )    
+    const y= year;
+    if(t){
+        const {data, error} = useSWR(`https://www.omdbapi.com/?apikey=5d61b462&s=${t}&y=${y}`, fetcher)
+        const { Meta } = Card;
+        console.log(data)
+        if (error) return <div>falha na requisição...</div>
+        if (!data) return <div>carregando...</div>
+        if (data.Response=="False")return<div>filme não encontrado...</div>
+        console.log(data)
+        return (
+            <Space direction="horizontal" style={{width: '100%', justifyContent: 'center', flexWrap:'wrap'}}>
+                {data.Search.map((m) => (
+                    <Card
+                        hoverable
+                        style={{
+                            width: 240,
+                        }}
+                        cover={<img src={m.Poster}/>}
+                    >
+                        <Meta  title={m.Title} description={m.Year} />
+                    </Card>
+                ))} 
+            </Space>     
+        ) 
+    }   
   }
 
   async function fetcher(url) {
