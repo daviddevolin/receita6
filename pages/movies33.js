@@ -1,10 +1,20 @@
-import { Input, Button , Form} from "antd";
+import { Input, Button , Form, Card, Space} from "antd";
+import { useState } from "react";
 import { SearchOutlined } from '@ant-design/icons';
+import useSWR from "swr";
 import "antd/dist/antd.css";
-export default function Movies33(){   
+export default function Movies33(){  
+    const [state, setState] = useState({title:'', year:''});
     const onFinish =()=>{
         const value = document.getElementById('inputFilme').value;
-        window.location.href= `/searchmovies/${value}`
+        const value2 = document.getElementById('yearFilme').value;
+        if (state.title === '') {
+            setState({title:value,year:value2})
+        }
+        else{
+            setState({title: state.title, year: state.year})
+        }
+        MovieSearch(value)
     }
 
     const [form] = Form.useForm();
@@ -47,6 +57,24 @@ export default function Movies33(){
                     />
                 </Form.Item>
 
+                <Form.Item
+                    {...formItemLayout}
+                    name="yearfilme"
+                    label="Year"
+                    rules={[
+                    {
+                        required: true,
+                        message: 'insira o ano do filme',
+                    },
+                    ]}
+                >
+                    <Input 
+                        placeholder="digite o ano do filme"  
+                        id="yearFilme" 
+                    />
+                </Form.Item>
+
+
                 <Form.Item {...formTailLayout}>
                 <Button 
                     type='primary'  
@@ -56,7 +84,42 @@ export default function Movies33(){
                 </Button>
                 </Form.Item>
             </Form>
+            <MovieSearch title={state.title} year={state.year} />
         </div>
     )
     
 }
+
+export  function MovieSearch({title,year}){
+
+    const t=title;
+    const y= year
+    const {data, error} = useSWR(`https://www.omdbapi.com/?apikey=5d61b462&s=${t}&y=${y}`, fetcher)
+    const { Meta } = Card;
+
+    if (error) return <div>falha na requisição...</div>
+    if (!data) return <div>carregando...</div>
+    if (data.Response=="False")return<div>filme não encontrado...</div>
+    console.log(data)
+    return (
+        <Space direction="horizontal" style={{width: '100%', justifyContent: 'center', flexWrap:'wrap'}}>
+            {data.Search.map((m) => (
+                <Card
+                    hoverable
+                    style={{
+                        width: 240,
+                    }}
+                    cover={<img src={m.Poster}/>}
+                >
+                    <Meta  title={m.Title} description={m.Year} />
+                </Card>
+            ))} 
+        </Space>     
+    )    
+  }
+
+  async function fetcher(url) {
+    const res = await fetch(url);
+    const json = await res.json();
+    return json;
+  }
